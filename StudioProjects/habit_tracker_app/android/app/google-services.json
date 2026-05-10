@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "131506280910",
+    "project_id": "app-habit-tracker-50402",
+    "storage_bucket": "app-habit-tracker-50402.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:131506280910:android:7319c197b647d90866f39f",
+        "android_client_info": {
+          "package_name": "com.ksenia.habittracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "131506280910-95hrhf8i3httufc85vsv555shf082ncc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzyD7wNHJi2PPuXy4d662gGw4VoDFVHu4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "131506280910-95hrhf8i3httufc85vsv555shf082ncc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "131506280910-c091btudbj7e0r5kd88r135p533d269g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ksenia.habittracker"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

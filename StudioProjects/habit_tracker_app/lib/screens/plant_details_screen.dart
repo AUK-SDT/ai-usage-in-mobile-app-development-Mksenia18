@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../constants/habit_constants.dart';
 import '../cubit/habit_cubit.dart';
 import '../cubit/habit_state.dart';
+import 'habit_history_screen.dart';
 
 class PlantDetailsScreen extends StatelessWidget {
   final String habitId;
@@ -16,7 +18,11 @@ class PlantDetailsScreen extends StatelessWidget {
           if (state.status != HabitStatus.success) {
             return const Center(child: CircularProgressIndicator());
           }
-          final habit = state.habits.firstWhere((h) => h.id == habitId);
+          final habitIndex = state.habits.indexWhere((h) => h.id == habitId);
+          if (habitIndex == -1) {
+            return const Center(child: Text('Habit not found'));
+          }
+          final habit = state.habits[habitIndex];
 
           return Padding(
             padding: const EdgeInsets.all(20),
@@ -54,16 +60,31 @@ class PlantDetailsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 FilledButton.icon(
-                  onPressed: () =>
-                      context.read<HabitCubit>().completeHabit(habit.id),
+                  onPressed: () async {
+                    final updated = await context.read<HabitCubit>().completeHabit(
+                      habit.id,
+                    );
+                    if (!context.mounted || updated) {
+                      return;
+                    }
+                    final error = context.read<HabitCubit>().state.errorMessage;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(error ?? 'Could not save progress')),
+                    );
+                  },
                   icon: const Icon(Icons.water_drop),
                   label: const Text('Complete Habit'),
                 ),
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
-                  onPressed: null,
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => HabitHistoryScreen(habit: habit),
+                    ),
+                  ),
                   icon: const Icon(Icons.calendar_month_outlined),
-                  label: const Text('View History (coming soon)'),
+                  label: const Text('View History'),
                 ),
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
@@ -73,8 +94,20 @@ class PlantDetailsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 TextButton.icon(
-                  onPressed: () {
-                    context.read<HabitCubit>().deleteHabit(habit.id);
+                  onPressed: () async {
+                    final deleted = await context.read<HabitCubit>().deleteHabit(
+                      habit.id,
+                    );
+                    if (!context.mounted || !deleted) {
+                      if (!context.mounted) {
+                        return;
+                      }
+                      final error = context.read<HabitCubit>().state.errorMessage;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error ?? 'Could not delete habit')),
+                      );
+                      return;
+                    }
                     Navigator.pop(context);
                   },
                   icon: const Icon(Icons.delete_outline),
@@ -112,8 +145,7 @@ class PlantDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: selectedCategory,
-                    items: ['Health', 'Study', 'Fitness', 'Mindset', 'Work']
-                        .map((category) {
+                    items: habitCategories.map((category) {
                           return DropdownMenuItem(
                             value: category,
                             child: Text(category),
@@ -135,16 +167,26 @@ class PlantDetailsScreen extends StatelessWidget {
                   child: const Text('Cancel'),
                 ),
                 FilledButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final title = titleController.text.trim();
                     if (title.isEmpty) {
                       return;
                     }
-                    cubit.editHabit(
+                    final updated = await cubit.editHabit(
                       id: id,
                       title: title,
                       category: selectedCategory,
                     );
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+                    if (!updated) {
+                      final error = cubit.state.errorMessage;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error ?? 'Could not update habit')),
+                      );
+                      return;
+                    }
                     Navigator.pop(dialogContext);
                   },
                   child: const Text('Save'),

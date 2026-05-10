@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:habit_tracker_app/main.dart';
+import 'package:habit_tracker_app/models/habit.dart';
 
 void main() {
-  testWidgets('App bootstraps', (WidgetTester tester) async {
-    await tester.pumpWidget(const HabitGardenApp());
-    await tester.pump(const Duration(milliseconds: 900));
-    expect(find.byType(MaterialApp), findsOneWidget);
+  test('Habit growth stages are mapped correctly', () {
+    expect(Habit(id: '1', title: 'A', category: 'Health', level: 1).stageLabel, 'Seed');
+    expect(Habit(id: '2', title: 'B', category: 'Health', level: 2).stageLabel, 'Sprout');
+    expect(Habit(id: '3', title: 'C', category: 'Health', level: 3).stageLabel, 'Flower');
+    expect(Habit(id: '4', title: 'D', category: 'Health', level: 4).stageLabel, 'Tree');
   });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/auth_cubit.dart';
 import '../cubit/habit_cubit.dart';
 import '../cubit/habit_state.dart';
 import '../widgets/habit_card.dart';
@@ -17,20 +18,10 @@ class GardenScreen extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Habit Garden Builder'),
             actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Chip(
-                  label: Text(
-                    state.firebaseConnected ? 'Firebase' : 'Mock API',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  avatar: Icon(
-                    state.firebaseConnected
-                        ? Icons.cloud_done
-                        : Icons.cloud_off,
-                    size: 18,
-                  ),
-                ),
+              IconButton(
+                onPressed: () => context.read<AuthCubit>().signOut(),
+                icon: const Icon(Icons.logout),
+                tooltip: 'Sign out',
               ),
             ],
           ),
@@ -40,7 +31,8 @@ class GardenScreen extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                 child: _GardenHeader(
                   habitCount: state.habits.length,
-                  message: state.message,
+                  infoMessage: state.infoMessage,
+                  errorMessage: state.errorMessage,
                 ),
               ),
               Expanded(
@@ -52,7 +44,10 @@ class GardenScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Could not load your garden'),
+                        Text(
+                          state.errorMessage ?? 'Could not load your garden',
+                          textAlign: TextAlign.center,
+                        ),
                         const SizedBox(height: 12),
                         FilledButton(
                           onPressed: () =>
@@ -62,30 +57,47 @@ class GardenScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  HabitStatus.success => GridView.builder(
-                    padding: const EdgeInsets.all(16),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisExtent: 220,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                        ),
-                    itemCount: state.habits.length,
-                    itemBuilder: (context, index) {
-                      final habit = state.habits[index];
-                      return HabitCard(
-                        habit: habit,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                PlantDetailsScreen(habitId: habit.id),
+                  HabitStatus.success => state.habits.isEmpty
+                      ? _EmptyGarden(
+                          onAddPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AddHabitScreen(),
+                            ),
                           ),
+                        )
+                      : Stack(
+                          children: [
+                            GridView.builder(
+                              padding: const EdgeInsets.all(16),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    mainAxisExtent: 220,
+                                    mainAxisSpacing: 12,
+                                    crossAxisSpacing: 12,
+                                  ),
+                              itemCount: state.habits.length,
+                              itemBuilder: (context, index) {
+                                final habit = state.habits[index];
+                                return HabitCard(
+                                  habit: habit,
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => PlantDetailsScreen(
+                                        habitId: habit.id,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            if (state.operationStatus ==
+                                HabitOperationStatus.inProgress)
+                              const _OperationOverlay(),
+                          ],
                         ),
-                      );
-                    },
-                  ),
                 },
               ),
             ],
@@ -106,9 +118,14 @@ class GardenScreen extends StatelessWidget {
 
 class _GardenHeader extends StatelessWidget {
   final int habitCount;
-  final String? message;
+  final String? infoMessage;
+  final String? errorMessage;
 
-  const _GardenHeader({required this.habitCount, required this.message});
+  const _GardenHeader({
+    required this.habitCount,
+    required this.infoMessage,
+    required this.errorMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -129,8 +146,63 @@ class _GardenHeader extends StatelessWidget {
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
-          Text(message ?? 'Keep watering habits to evolve every plant stage'),
+          Text(
+            errorMessage ??
+                infoMessage ??
+                'Keep watering habits to evolve every plant stage',
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _EmptyGarden extends StatelessWidget {
+  final VoidCallback onAddPressed;
+
+  const _EmptyGarden({required this.onAddPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.local_florist_outlined, size: 56),
+            const SizedBox(height: 12),
+            const Text(
+              'No habits yet',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Plant your first habit and start growing your garden',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onAddPressed,
+              icon: const Icon(Icons.add),
+              label: const Text('Add First Habit'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OperationOverlay extends StatelessWidget {
+  const _OperationOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.fill(
+      child: ColoredBox(
+        color: Colors.black12,
+        child: const Center(child: CircularProgressIndicator()),
       ),
     );
   }

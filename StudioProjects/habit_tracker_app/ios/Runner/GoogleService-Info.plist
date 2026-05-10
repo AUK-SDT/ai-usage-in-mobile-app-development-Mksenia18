@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>131506280910-m4725ggv3i5nsovurcpkhjpsent4o39s.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.131506280910-m4725ggv3i5nsovurcpkhjpsent4o39s</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBQA6W_oR7U-AAjPszrMGE6gB3HGo7s_C8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>131506280910</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.habitTrackerApp</string>
+	<key>PROJECT_ID</key>
+	<string>app-habit-tracker-50402</string>
+	<key>STORAGE_BUCKET</key>
+	<string>app-habit-tracker-50402.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:131506280910:ios:b9af78775d730e1466f39f</string>
+</dict>
+</plist>

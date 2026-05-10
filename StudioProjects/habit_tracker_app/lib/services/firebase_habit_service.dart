@@ -6,26 +6,35 @@ class FirebaseHabitService {
 
   FirebaseHabitService({this.firestore});
 
-  Future<List<Habit>> fetchHabits() async {
+  CollectionReference<Map<String, dynamic>> _habitsCollection(String userId) {
     final instance = firestore ?? FirebaseFirestore.instance;
-    final snapshot = await instance.collection('habits').get();
-    return snapshot.docs
-        .map((doc) => Habit.fromMap(doc.id, doc.data()))
-        .toList();
+    return instance.collection('users').doc(userId).collection('habits');
   }
 
-  Future<void> addHabit(Habit habit) async {
-    final instance = firestore ?? FirebaseFirestore.instance;
-    await instance.collection('habits').doc(habit.id).set(habit.toMap());
+  Stream<List<Habit>> watchHabits(String userId) {
+    return _habitsCollection(userId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) => Habit.fromMap(doc.id, doc.data())).toList();
+    });
   }
 
-  Future<void> updateHabit(Habit habit) async {
-    final instance = firestore ?? FirebaseFirestore.instance;
-    await instance.collection('habits').doc(habit.id).update(habit.toMap());
+  Future<void> addHabit({
+    required String userId,
+    required Habit habit,
+  }) async {
+    await _habitsCollection(userId).doc(habit.id).set(habit.toMap());
   }
 
-  Future<void> deleteHabit(String id) async {
-    final instance = firestore ?? FirebaseFirestore.instance;
-    await instance.collection('habits').doc(id).delete();
+  Future<void> updateHabit({
+    required String userId,
+    required Habit habit,
+  }) async {
+    await _habitsCollection(userId).doc(habit.id).update(habit.toMap());
+  }
+
+  Future<void> deleteHabit({
+    required String userId,
+    required String id,
+  }) async {
+    await _habitsCollection(userId).doc(id).delete();
   }
 }

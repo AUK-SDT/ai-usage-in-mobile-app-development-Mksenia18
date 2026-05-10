@@ -12,8 +12,24 @@ class StatisticsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Statistics')),
       body: BlocBuilder<HabitCubit, HabitState>(
         builder: (context, state) {
-          if (state.status != HabitStatus.success) {
+          if (state.status == HabitStatus.loading) {
             return const Center(child: CircularProgressIndicator());
+          }
+          if (state.status == HabitStatus.error) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  state.errorMessage ?? 'Could not load statistics',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
+          if (state.habits.isEmpty) {
+            return const Center(
+              child: Text('Add habits to unlock statistics'),
+            );
           }
 
           final totalHabits = state.habits.length;
